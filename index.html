@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Connections - Find Your Celestial Soulmate</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cosmic: {
+                            navy: '#0B1426',
+                            gold: '#D4AF37',
+                            silver: '#C0C0C0',
+                            lavender: '#E6E6FA',
+                            rose: '#E8B4B8',
+                            midnight: '#191970',
+                            stardust: '#F8F8FF',
+                            purple: '#6A0DAD',
+                            aurora: '#40E0D0'
+                        }
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Crimson Text', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1426 0%, #191970 50%, #0B1426 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(11, 20, 38, 0.7), rgba(25, 25, 112, 0.7)), url('resources/hero-cosmic-love.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .cosmic-card {
+            background: rgba(248, 248, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cosmic-btn {
+            background: linear-gradient(135deg, #D4AF37, #C0C0C0);
+            color: #0B1426;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cosmic-btn:hover {
+            background: linear-gradient(135deg, #C0C0C0, #D4AF37);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+        }
+        
+        .cosmic-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .cosmic-btn:hover::before {
+            left: 100%;
+        }
+        
+        .zodiac-wheel {
+            width: 300px;
+            height: 300px;
+            border: 2px solid #D4AF37;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        .zodiac-sign {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid #D4AF37;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #D4AF37;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .zodiac-sign:hover {
+            background: rgba(212, 175, 55, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .compatibility-meter {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+            width: 0%;
+            transition: width 1s ease;
+        }
+        
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .scroll-animate.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .featured-carousel .splide__slide {
+            padding: 0 1rem;
+        }
+        
+        .member-card {
+            transition: all 0.3s ease;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .aurora-bg {
+            background: linear-gradient(45deg, #D4AF37, #6A0DAD, #40E0D0, #E8B4B8);
+            background-size: 400% 400%;
+            animation: aurora 8s ease-in-out infinite;
+        }
+        
+        @keyframes aurora {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .constellation-nav {
+            position: relative;
+        }
+        
+        .constellation-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #D4AF37;
+            transition: width 0.3s ease;
+        }
+        
+        .constellation-nav:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cosmic Background Canvas -->
+    <div class="cosmic-bg">
+        <canvas id="cosmic-canvas"></canvas>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-cosmic-navy/80 backdrop-blur-md border-b border-cosmic-gold/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                        <span class="text-cosmic-navy font-bold text-sm">★</span>
+                    </div>
+                    <span class="font-display text-xl font-bold text-cosmic-stardust">Cosmic Connections</span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Home</a>
+                    <a href="register.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Register</a>
+                    <a href="search.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Find Matches</a>
+                    <a href="members.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Browse Members</a>
+                </div>
+                
+                <button class="cosmic-btn px-6 py-2 rounded-full text-sm">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-section min-h-screen flex items-center justify-center pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="hero-title font-display text-5xl md:text-7xl font-bold text-cosmic-stardust mb-6">
+                    Find Your <span class="bg-gradient-to-r from-cosmic-gold to-cosmic-aurora bg-clip-text text-transparent">Cosmic Connection</span>
+                </h1>
+                
+                <p class="hero-subtitle text-xl md:text-2xl text-cosmic-lavender mb-8 leading-relaxed">
+                    Discover meaningful relationships through the ancient wisdom of astrology, Chinese zodiac, and numerology. 
+                    Let the stars guide you to your perfect match.
+                </p>
+                
+                <div class="hero-cta flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="register.html" class="cosmic-btn px-8 py-4 rounded-full text-lg font-semibold">
+                        Start Your Cosmic Journey
+                    </a>
+                    <a href="search.html" class="border-2 border-cosmic-gold text-cosmic-gold px-8 py-4 rounded-full text-lg font-semibold hover:bg-cosmic-gold hover:text-cosmic-navy transition-all">
+                        Find Matches Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How It Works Section -->
+    <section class="py-20 scroll-animate" data-animation="fadeInUp">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl md:text-5xl font-bold text-cosmic-stardust mb-6">
+                    How Cosmic Connections Work
+                </h2>
+                <p class="text-xl text-cosmic-lavender max-w-3xl mx-auto">
+                    Our unique compatibility system combines three ancient wisdom traditions to create meaningful matches
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="cosmic-card p-8 rounded-2xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">📅</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold text-cosmic-stardust mb-4">Enter Your Birthdate</h3>
+                    <p class="text-cosmic-lavender">
+                        Share your birthdate to unlock your cosmic profile including your zodiac sign, 
+                        Chinese zodiac animal, and life path number.
+                    </p>
+                </div>
+                
+                <div class="cosmic-card p-8 rounded-2xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cosmic-purple to-cosmic-aurora rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">✨</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold text-cosmic-stardust mb-4">Cosmic Calculation</h3>
+                    <p class="text-cosmic-lavender">
+                        Our advanced algorithm analyzes your three cosmic signatures to determine 
+                        compatibility with other members.
+                    </p>
+                </div>
+                
+                <div class="cosmic-card p-8 rounded-2xl text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cosmic-rose to-cosmic-gold rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl">💫</span>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold text-cosmic-stardust mb-4">Find Your Match</h3>
+                    <p class="text-cosmic-lavender">
+                        Discover your most compatible connections and start meaningful conversations 
+                        with people who share your cosmic energy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Zodiac Wheel Section -->
+    <section class="py-20 scroll-animate" data-animation="fadeInUp">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="font-display text-4xl md:text-5xl font-bold text-cosmic-stardust mb-6">
+                        The Power of <span class="text-cosmic-gold">Zodiac Compatibility</span>
+                    </h2>
+                    <p class="text-xl text-cosmic-lavender mb-8">
+                        Our algorithm analyzes the fundamental elements of astrology - Fire, Earth, Air, and Water - 
+                        to determine natural compatibility between signs.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                            <span class="text-cosmic-stardust font-semibold">Fire Signs: Aries, Leo, Sagittarius</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                            <span class="text-cosmic-stardust font-semibold">Earth Signs: Taurus, Virgo, Capricorn</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+                            <span class="text-cosmic-stardust font-semibold">Air Signs: Gemini, Libra, Aquarius</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-4 h-4 bg-purple-500 rounded-full"></div>
+                            <span class="text-cosmic-stardust font-semibold">Water Signs: Cancer, Scorpio, Pisces</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <div class="zodiac-wheel relative">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <img src="resources/zodiac-wheel.png" alt="Zodiac Wheel" class="w-full h-full object-contain">
+                        </div>
+                        <!-- Zodiac signs positioned around the wheel -->
+                        <div class="zodiac-sign" style="top: 10px; left: 50%; transform: translateX(-50%);">♈</div>
+                        <div class="zodiac-sign" style="top: 25px; right: 25px;">♉</div>
+                        <div class="zodiac-sign" style="top: 50%; right: 10px; transform: translateY(-50%);">♊</div>
+                        <div class="zodiac-sign" style="bottom: 25px; right: 25px;">♋</div>
+                        <div class="zodiac-sign" style="bottom: 10px; left: 50%; transform: translateX(-50%);">♌</div>
+                        <div class="zodiac-sign" style="bottom: 25px; left: 25px;">♍</div>
+                        <div class="zodiac-sign" style="top: 50%; left: 10px; transform: translateY(-50%);">♎</div>
+                        <div class="zodiac-sign" style="top: 25px; left: 25px;">♏</div>
+                        <div class="zodiac-sign" style="top: 80px; right: 80px;">♐</div>
+                        <div class="zodiac-sign" style="bottom: 80px; right: 80px;">♑</div>
+                        <div class="zodiac-sign" style="bottom: 80px; left: 80px;">♒</div>
+                        <div class="zodiac-sign" style="top: 80px; left: 80px;">♓</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Members Section -->
+    <section class="py-20 scroll-animate" data-animation="fadeInUp">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl md:text-5xl font-bold text-cosmic-stardust mb-6">
+                    Featured <span class="text-cosmic-gold">Cosmic Connections</span>
+                </h2>
+                <p class="text-xl text-cosmic-lavender max-w-3xl mx-auto">
+                    Real couples who found love through our cosmic compatibility system
+                </p>
+            </div>
+            
+            <div class="featured-carousel splide">
+                <div class="splide__track">
+                    <ul class="splide__list">
+                        <li class="splide__slide">
+                            <div class="cosmic-card p-6 rounded-2xl">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <img src="https://picsum.photos/seed/couple1/80/80.jpg" alt="Emma & David" class="w-20 h-20 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="font-display text-xl font-bold text-cosmic-stardust">Emma & David</h3>
+                                        <p class="text-cosmic-lavender">Leo ♌ + Libra ♎</p>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-cosmic-gold font-semibold">92% Compatible</span>
+                                            <div class="compatibility-meter w-16">
+                                                <div class="meter-fill" data-score="92"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-cosmic-lavender italic">
+                                    "Our cosmic connection was undeniable from the first message. 
+                                    As a Leo and Libra, we balance each other perfectly!"
+                                </p>
+                                <div class="mt-4 text-sm text-cosmic-gold">Together for 2 years</div>
+                            </div>
+                        </li>
+                        
+                        <li class="splide__slide">
+                            <div class="cosmic-card p-6 rounded-2xl">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <img src="https://picsum.photos/seed/couple2/80/80.jpg" alt="Maya & James" class="w-20 h-20 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="font-display text-xl font-bold text-cosmic-stardust">Maya & James</h3>
+                                        <p class="text-cosmic-lavender">Pisces ♓ + Scorpio ♏</p>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-cosmic-gold font-semibold">88% Compatible</span>
+                                            <div class="compatibility-meter w-16">
+                                                <div class="meter-fill" data-score="88"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-cosmic-lavender italic">
+                                    "Being a Pisces, I always felt misunderstood until I met James, 
+                                    my Scorpio soulmate. Our water sign connection runs deep."
+                                </p>
+                                <div class="mt-4 text-sm text-cosmic-gold">Together for 18 months</div>
+                            </div>
+                        </li>
+                        
+                        <li class="splide__slide">
+                            <div class="cosmic-card p-6 rounded-2xl">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <img src="https://picsum.photos/seed/couple3/80/80.jpg" alt="Alex & Sarah" class="w-20 h-20 rounded-full object-cover">
+                                    <div>
+                                        <h3 class="font-display text-xl font-bold text-cosmic-stardust">Alex & Sarah</h3>
+                                        <p class="text-cosmic-lavender">Aquarius ♒ + Gemini ♊</p>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-cosmic-gold font-semibold">85% Compatible</span>
+                                            <div class="compatibility-meter w-16">
+                                                <div class="meter-fill" data-score="85"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-cosmic-lavender italic">
+                                    "As fellow air signs, we connected instantly on an intellectual level. 
+                                    Our conversations never end, and we inspire each other daily."
+                                </p>
+                                <div class="mt-4 text-sm text-cosmic-gold">Together for 1 year</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Compatibility Insights Section -->
+    <section class="py-20 scroll-animate" data-animation="fadeInUp">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl md:text-5xl font-bold text-cosmic-stardust mb-6">
+                    <span class="text-cosmic-gold">Cosmic</span> Compatibility Insights
+                </h2>
+                <p class="text-xl text-cosmic-lavender max-w-3xl mx-auto">
+                    Discover the science behind our compatibility matching system
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="cosmic-card p-8 rounded-2xl">
+                    <h3 class="font-display text-2xl font-bold text-cosmic-stardust mb-6">Compatibility Distribution</h3>
+                    <div id="compatibility-chart" style="height: 300px;"></div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="cosmic-card p-6 rounded-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold text-cosmic-stardust">High Compatibility (80-100%)</h4>
+                            <span class="text-cosmic-gold font-bold">34%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" data-score="34" style="background: linear-gradient(90deg, #4CAF50, #8BC34A);"></div>
+                        </div>
+                        <p class="text-cosmic-lavender text-sm mt-2">Strong cosmic connections with lasting potential</p>
+                    </div>
+                    
+                    <div class="cosmic-card p-6 rounded-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold text-cosmic-stardust">Medium Compatibility (60-79%)</h4>
+                            <span class="text-cosmic-gold font-bold">45%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" data-score="45" style="background: linear-gradient(90deg, #FF9800, #FFC107);"></div>
+                        </div>
+                        <p class="text-cosmic-lavender text-sm mt-2">Promising connections that can grow with effort</p>
+                    </div>
+                    
+                    <div class="cosmic-card p-6 rounded-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-semibold text-cosmic-stardust">Learning Connections (40-59%)</h4>
+                            <span class="text-cosmic-gold font-bold">21%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" data-score="21" style="background: linear-gradient(90deg, #F44336, #FF5722);"></div>
+                        </div>
+                        <p class="text-cosmic-lavender text-sm mt-2">Challenging but growth-oriented relationships</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action Section -->
+    <section class="py-20 aurora-bg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="font-display text-4xl md:text-5xl font-bold text-cosmic-stardust mb-6">
+                Ready to Find Your <span class="text-cosmic-gold">Cosmic Match</span>?
+            </h2>
+            <p class="text-xl text-cosmic-lavender mb-8">
+                Join thousands of cosmic souls who have found meaningful connections through our unique compatibility system.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="register.html" class="cosmic-btn px-8 py-4 rounded-full text-lg font-semibold">
+                    Create Your Cosmic Profile
+                </a>
+                <a href="members.html" class="border-2 border-cosmic-stardust text-cosmic-stardust px-8 py-4 rounded-full text-lg font-semibold hover:bg-cosmic-stardust hover:text-cosmic-navy transition-all">
+                    Browse Members
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-cosmic-navy/50 border-t border-cosmic-gold/20 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                    <span class="text-cosmic-navy font-bold text-sm">★</span>
+                </div>
+                <span class="font-display text-xl font-bold text-cosmic-stardust">Cosmic Connections</span>
+            </div>
+            
+            <p class="text-cosmic-lavender mb-4">
+                © 2025 Cosmic Connections. Bringing souls together through celestial wisdom.
+            </p>
+            
+            <p class="text-cosmic-lavender text-sm">
+                Made with ✨ and cosmic love for meaningful connections.
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    <script src="animations.js"></script>
+    <script src="data.js"></script>
+    
+    <script>
+        // Initialize compatibility chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartDom = document.getElementById('compatibility-chart');
+            if (chartDom && typeof echarts !== 'undefined') {
+                const myChart = echarts.init(chartDom);
+                
+                const option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c}% ({d}%)'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        textStyle: {
+                            color: '#F8F8FF'
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Compatibility',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '18',
+                                    fontWeight: 'bold',
+                                    color: '#F8F8FF'
+                                }
+                            },
+                            labelLine: {
+                                show: false
+                            },
+                            data: [
+                                { value: 34, name: 'High Compatibility', itemStyle: { color: '#4CAF50' } },
+                                { value: 45, name: 'Medium Compatibility', itemStyle: { color: '#FF9800' } },
+                                { value: 21, name: 'Learning Connections', itemStyle: { color: '#F44336' } }
+                            ]
+                        }
+                    ]
+                };
+                
+                myChart.setOption(option);
+                
+                // Responsive chart
+                window.addEventListener('resize', function() {
+                    myChart.resize();
+                });
+            }
+            
+            // Initialize meter animations
+            setTimeout(() => {
+                const meters = document.querySelectorAll('.meter-fill');
+                meters.forEach(meter => {
+                    const score = meter.dataset.score;
+                    if (score) {
+                        meter.style.width = score + '%';
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

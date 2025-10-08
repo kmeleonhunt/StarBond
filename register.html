@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Cosmic Profile - Cosmic Connections</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cosmic: {
+                            navy: '#0B1426',
+                            gold: '#D4AF37',
+                            silver: '#C0C0C0',
+                            lavender: '#E6E6FA',
+                            rose: '#E8B4B8',
+                            midnight: '#191970',
+                            stardust: '#F8F8FF',
+                            purple: '#6A0DAD',
+                            aurora: '#40E0D0'
+                        }
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Crimson Text', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1426 0%, #191970 50%, #0B1426 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .cosmic-card {
+            background: rgba(248, 248, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cosmic-btn {
+            background: linear-gradient(135deg, #D4AF37, #C0C0C0);
+            color: #0B1426;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cosmic-btn:hover {
+            background: linear-gradient(135deg, #C0C0C0, #D4AF37);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+        }
+        
+        .cosmic-input {
+            background: rgba(248, 248, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #F8F8FF;
+            transition: all 0.3s ease;
+        }
+        
+        .cosmic-input:focus {
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+            outline: none;
+        }
+        
+        .cosmic-input::placeholder {
+            color: rgba(248, 248, 255, 0.6);
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        .cosmic-reveal {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        .constellation-nav {
+            position: relative;
+        }
+        
+        .constellation-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #D4AF37;
+            transition: width 0.3s ease;
+        }
+        
+        .constellation-nav:hover::after {
+            width: 100%;
+        }
+        
+        .hobby-tag {
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid #D4AF37;
+            color: #D4AF37;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .hobby-tag.selected {
+            background: #D4AF37;
+            color: #0B1426;
+        }
+        
+        .hobby-tag:hover {
+            background: rgba(212, 175, 55, 0.3);
+        }
+        
+        .cosmic-profile-preview {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(64, 224, 208, 0.1));
+            border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .zodiac-symbol {
+            font-size: 2rem;
+            color: #D4AF37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #D4AF37, #40E0D0);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cosmic Background Canvas -->
+    <div class="cosmic-bg">
+        <canvas id="cosmic-canvas"></canvas>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-cosmic-navy/80 backdrop-blur-md border-b border-cosmic-gold/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                        <span class="text-cosmic-navy font-bold text-sm">★</span>
+                    </div>
+                    <span class="font-display text-xl font-bold text-cosmic-stardust">Cosmic Connections</span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Home</a>
+                    <a href="register.html" class="constellation-nav text-cosmic-gold">Register</a>
+                    <a href="search.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Find Matches</a>
+                    <a href="members.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Browse Members</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Registration Form -->
+    <section class="pt-24 pb-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-cosmic-stardust text-sm font-medium">Step <span id="current-step">1</span> of 4</span>
+                    <span class="text-cosmic-gold text-sm font-medium"><span id="progress-percent">25</span>% Complete</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 25%;"></div>
+                </div>
+            </div>
+            
+            <div class="cosmic-card p-8 rounded-2xl">
+                <div class="text-center mb-8">
+                    <h1 class="font-display text-4xl font-bold text-cosmic-stardust mb-4">
+                        Create Your <span class="text-cosmic-gold">Cosmic Profile</span>
+                    </h1>
+                    <p class="text-cosmic-lavender text-lg">
+                        Discover your cosmic signatures and find your perfect match
+                    </p>
+                </div>
+                
+                <!-- Step 1: Basic Information -->
+                <div class="form-step active" id="step-1">
+                    <h2 class="font-display text-2xl font-bold text-cosmic-stardust mb-6">Basic Information</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-cosmic-stardust font-medium mb-2">Full Name</label>
+                            <input type="text" id="full-name" class="cosmic-input w-full px-4 py-3 rounded-lg" placeholder="Enter your full name">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-cosmic-stardust font-medium mb-2">Email Address</label>
+                            <input type="email" id="email" class="cosmic-input w-full px-4 py-3 rounded-lg" placeholder="your@email.com">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-cosmic-stardust font-medium mb-2">Birthdate</label>
+                            <input type="date" id="birthdate" class="cosmic-input w-full px-4 py-3 rounded-lg" max="2006-12-31">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-cosmic-stardust font-medium mb-2">Location</label>
+                            <select id="location" class="cosmic-input w-full px-4 py-3 rounded-lg">
+                                <option value="">Select your city</option>
+                                <option value="New York">New York, NY</option>
+                                <option value="Los Angeles">Los Angeles, CA</option>
+                                <option value="Chicago">Chicago, IL</option>
+                                <option value="Houston">Houston, TX</option>
+                                <option value="Phoenix">Phoenix, AZ</option>
+                                <option value="Philadelphia">Philadelphia, PA</option>
+                                <option value="San Antonio">San Antonio, TX</option>
+                                <option value="San Diego">San Diego, CA</option>
+                                <option value="Dallas">Dallas, TX</option>
+                                <option value="San Jose">San Jose, CA</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-8">
+                        <button class="next-step cosmic-btn px-8 py-3 rounded-full">
+                            Continue to Cosmic Calculation
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Cosmic Calculation -->
+                <div class="form-step" id="step-2">
+                    <h2 class="font-display text-2xl font-bold text-cosmic-stardust mb-6">Your Cosmic Signatures</h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <!-- Zodiac Sign -->
+                        <div class="cosmic-card p-6 rounded-xl text-center cosmic-reveal" id="zodiac-calc">
+                            <div class="zodiac-symbol mb-4" id="zodiac-symbol">♈</div>
+                            <h3 class="font-display text-xl font-bold text-cosmic-stardust mb-2" id="zodiac-sign">Aries</h3>
+                            <p class="text-cosmic-lavender text-sm mb-3" id="zodiac-dates">March 21 - April 19</p>
+                            <p class="text-cosmic-gold font-semibold" id="zodiac-element">Fire Sign</p>
+                        </div>
+                        
+                        <!-- Chinese Zodiac -->
+                        <div class="cosmic-card p-6 rounded-xl text-center cosmic-reveal" id="chinese-calc">
+                            <div class="text-4xl mb-4" id="chinese-animal">🐭</div>
+                            <h3 class="font-display text-xl font-bold text-cosmic-stardust mb-2" id="chinese-zodiac">Rat</h3>
+                            <p class="text-cosmic-lavender text-sm mb-3" id="chinese-element">Water Element</p>
+                            <p class="text-cosmic-gold font-semibold" id="chinese-years">2020, 2008, 1996...</p>
+                        </div>
+                        
+                        <!-- Life Path Number -->
+                        <div class="cosmic-card p-6 rounded-xl text-center cosmic-reveal" id="lifepath-calc">
+                            <div class="text-4xl mb-4 font-bold text-cosmic-gold" id="life-path-number">7</div>
+                            <h3 class="font-display text-xl font-bold text-cosmic-stardust mb-2" id="life-path-title">The Seeker</h3>
+                            <p class="text-cosmic-lavender text-sm mb-3" id="life-path-traits">Analytical, Spiritual</p>
+                            <p class="text-cosmic-gold font-semibold" id="life-path-compat">Best with: 3, 5, 6</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <p class="text-cosmic-lavender">
+                            Your cosmic signatures have been calculated! These three elements form the foundation of your compatibility with others.
+                        </p>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step border-2 border-cosmic-gold text-cosmic-gold px-8 py-3 rounded-full hover:bg-cosmic-gold hover:text-cosmic-navy transition-all">
+                            Back
+                        </button>
+                        <button class="next-step cosmic-btn px-8 py-3 rounded-full">
+                            Continue to Interests
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Interests & Hobbies -->
+                <div class="form-step" id="step-3">
+                    <h2 class="font-display text-2xl font-bold text-cosmic-stardust mb-6">Your Interests & Hobbies</h2>
+                    
+                    <div class="mb-8">
+                        <label class="block text-cosmic-stardust font-medium mb-4">
+                            Select your interests (choose at least 3):
+                        </label>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="hobbies-grid">
+                            <!-- Creative -->
+                            <div class="hobby-tag" data-hobby="Art">🎨 Art</div>
+                            <div class="hobby-tag" data-hobby="Music">🎵 Music</div>
+                            <div class="hobby-tag" data-hobby="Writing">✍️ Writing</div>
+                            <div class="hobby-tag" data-hobby="Photography">📸 Photography</div>
+                            <div class="hobby-tag" data-hobby="Design">🎨 Design</div>
+                            <div class="hobby-tag" data-hobby="Crafts">🧶 Crafts</div>
+                            
+                            <!-- Active -->
+                            <div class="hobby-tag" data-hobby="Fitness">💪 Fitness</div>
+                            <div class="hobby-tag" data-hobby="Sports">⚽ Sports</div>
+                            <div class="hobby-tag" data-hobby="Hiking">🥾 Hiking</div>
+                            <div class="hobby-tag" data-hobby="Dancing">💃 Dancing</div>
+                            <div class="hobby-tag" data-hobby="Yoga">🧘 Yoga</div>
+                            <div class="hobby-tag" data-hobby="Swimming">🏊 Swimming</div>
+                            
+                            <!-- Intellectual -->
+                            <div class="hobby-tag" data-hobby="Reading">📚 Reading</div>
+                            <div class="hobby-tag" data-hobby="Learning">🎓 Learning</div>
+                            <div class="hobby-tag" data-hobby="Philosophy">🤔 Philosophy</div>
+                            <div class="hobby-tag" data-hobby="Science">🔬 Science</div>
+                            <div class="hobby-tag" data-hobby="Technology">💻 Technology</div>
+                            <div class="hobby-tag" data-hobby="Chess">♟️ Chess</div>
+                            
+                            <!-- Social -->
+                            <div class="hobby-tag" data-hobby="Travel">✈️ Travel</div>
+                            <div class="hobby-tag" data-hobby="Cooking">👨‍🍳 Cooking</div>
+                            <div class="hobby-tag" data-hobby="Dining">🍽️ Dining</div>
+                            <div class="hobby-tag" data-hobby="Parties">🎉 Parties</div>
+                            <div class="hobby-tag" data-hobby="Networking">🤝 Networking</div>
+                            <div class="hobby-tag" data-hobby="Volunteering">🤲 Volunteering</div>
+                            
+                            <!-- Spiritual -->
+                            <div class="hobby-tag" data-hobby="Meditation">🧘‍♀️ Meditation</div>
+                            <div class="hobby-tag" data-hobby="Astrology">🔮 Astrology</div>
+                            <div class="hobby-tag" data-hobby="Crystals">💎 Crystals</div>
+                            <div class="hobby-tag" data-hobby="Tarot">🃏 Tarot</div>
+                            <div class="hobby-tag" data-hobby="Healing">🌿 Healing</div>
+                            <div class="hobby-tag" data-hobby="Nature">🌲 Nature</div>
+                            
+                            <!-- Entertainment -->
+                            <div class="hobby-tag" data-hobby="Movies">🎬 Movies</div>
+                            <div class="hobby-tag" data-hobby="Gaming">🎮 Gaming</div>
+                            <div class="hobby-tag" data-hobby="Theater">🎭 Theater</div>
+                            <div class="hobby-tag" data-hobby="Concerts">🎪 Concerts</div>
+                            <div class="hobby-tag" data-hobby="Museums">🏛️ Museums</div>
+                            <div class="hobby-tag" data-hobby="Comedy">😂 Comedy</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <label class="block text-cosmic-stardust font-medium mb-2">
+                            Tell us about yourself (optional):
+                        </label>
+                        <textarea id="bio" class="cosmic-input w-full px-4 py-3 rounded-lg h-24" placeholder="Share a bit about your personality, what you're looking for, or your cosmic journey..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step border-2 border-cosmic-gold text-cosmic-gold px-8 py-3 rounded-full hover:bg-cosmic-gold hover:text-cosmic-navy transition-all">
+                            Back
+                        </button>
+                        <button class="next-step cosmic-btn px-8 py-3 rounded-full" id="continue-to-preview">
+                            Preview Profile
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Profile Preview -->
+                <div class="form-step" id="step-4">
+                    <h2 class="font-display text-2xl font-bold text-cosmic-stardust mb-6">Your Cosmic Profile Preview</h2>
+                    
+                    <div class="cosmic-profile-preview p-8 rounded-2xl mb-8">
+                        <div class="flex items-center space-x-6 mb-6">
+                            <div class="w-24 h-24 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                                <span class="text-3xl text-cosmic-navy font-bold" id="preview-initials">ES</span>
+                            </div>
+                            <div>
+                                <h3 class="font-display text-2xl font-bold text-cosmic-stardust" id="preview-name">Emma Stellar</h3>
+                                <p class="text-cosmic-lavender" id="preview-location">New York, NY</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-cosmic-gold font-semibold" id="preview-zodiac">♌ Leo</span>
+                                    <span class="text-cosmic-aurora font-semibold" id="preview-chinese">🐭 Rat</span>
+                                    <span class="text-cosmic-rose font-semibold" id="preview-lifepath">7 Life Path</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-cosmic-stardust mb-3">About Me</h4>
+                            <p class="text-cosmic-lavender" id="preview-bio">
+                                Cosmic soul seeking meaningful connections. Leo with a passion for art and meditation.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-cosmic-stardust mb-3">Interests</h4>
+                            <div class="flex flex-wrap gap-2" id="preview-hobbies">
+                                <span class="hobby-tag selected">🎨 Art</span>
+                                <span class="hobby-tag selected">🧘‍♀️ Meditation</span>
+                                <span class="hobby-tag selected">🔮 Astrology</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-8">
+                        <p class="text-cosmic-lavender mb-4">
+                            Your cosmic profile is ready! Based on your birthdate and interests, 
+                            we'll find your most compatible matches.
+                        </p>
+                        <div class="cosmic-card p-4 rounded-lg inline-block">
+                            <p class="text-cosmic-gold font-semibold">
+                                ✨ Your profile shows excellent compatibility potential!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="prev-step border-2 border-cosmic-gold text-cosmic-gold px-8 py-3 rounded-full hover:bg-cosmic-gold hover:text-cosmic-navy transition-all">
+                            Back
+                        </button>
+                        <button class="cosmic-btn px-8 py-3 rounded-full" id="complete-registration">
+                            Complete Registration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-cosmic-navy/50 border-t border-cosmic-gold/20 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                    <span class="text-cosmic-navy font-bold text-sm">★</span>
+                </div>
+                <span class="font-display text-xl font-bold text-cosmic-stardust">Cosmic Connections</span>
+            </div>
+            
+            <p class="text-cosmic-lavender mb-4">
+                © 2025 Cosmic Connections. Bringing souls together through celestial wisdom.
+            </p>
+            
+            <p class="text-cosmic-lavender text-sm">
+                Made with ✨ and cosmic love for meaningful connections.
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    <script src="animations.js"></script>
+    <script src="data.js"></script>
+    
+    <script>
+        let selectedHobbies = [];
+        let currentStep = 1;
+        let userData = {};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRegistration();
+        });
+        
+        function initializeRegistration() {
+            // Hobby selection
+            const hobbyTags = document.querySelectorAll('.hobby-tag');
+            hobbyTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    const hobby = this.dataset.hobby;
+                    
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        selectedHobbies = selectedHobbies.filter(h => h !== hobby);
+                    } else {
+                        if (selectedHobbies.length < 8) {
+                            this.classList.add('selected');
+                            selectedHobbies.push(hobby);
+                        } else {
+                            alert('Please select no more than 8 interests.');
+                        }
+                    }
+                    
+                    updateContinueButton();
+                });
+            });
+            
+            // Form navigation
+            setupFormNavigation();
+            
+            // Birthdate change handler
+            document.getElementById('birthdate').addEventListener('change', function() {
+                if (this.value) {
+                    calculateCosmicSignatures(new Date(this.value));
+                }
+            });
+            
+            // Complete registration
+            document.getElementById('complete-registration').addEventListener('click', completeRegistration);
+        }
+        
+        function setupFormNavigation() {
+            // Next buttons
+            document.querySelectorAll('.next-step').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (validateCurrentStep()) {
+                        nextStep();
+                    }
+                });
+            });
+            
+            // Previous buttons
+            document.querySelectorAll('.prev-step').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    prevStep();
+                });
+            });
+        }
+        
+        function nextStep() {
+            if (currentStep < 4) {
+                // Hide current step
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                
+                currentStep++;
+                
+                // Show next step
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                
+                // Update progress
+                updateProgress();
+                
+                // Update preview if on step 4
+                if (currentStep === 4) {
+                    updateProfilePreview();
+                }
+                
+                // Animate step transition
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: `#step-${currentStep}`,
+                        opacity: [0, 1],
+                        translateX: [50, 0],
+                        duration: 500,
+                        easing: 'easeOutQuad'
+                    });
+                }
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                // Hide current step
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                
+                currentStep--;
+                
+                // Show previous step
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                
+                // Update progress
+                updateProgress();
+                
+                // Animate step transition
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: `#step-${currentStep}`,
+                        opacity: [0, 1],
+                        translateX: [-50, 0],
+                        duration: 500,
+                        easing: 'easeOutQuad'
+                    });
+                }
+            }
+        }
+        
+        function updateProgress() {
+            const progressPercent = (currentStep / 4) * 100;
+            document.getElementById('current-step').textContent = currentStep;
+            document.getElementById('progress-percent').textContent = Math.round(progressPercent);
+            document.getElementById('progress-fill').style.width = progressPercent + '%';
+        }
+        
+        function validateCurrentStep() {
+            switch (currentStep) {
+                case 1:
+                    const name = document.getElementById('full-name').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const birthdate = document.getElementById('birthdate').value;
+                    const location = document.getElementById('location').value;
+                    
+                    if (!name || !email || !birthdate || !location) {
+                        alert('Please fill in all required fields.');
+                        return false;
+                    }
+                    
+                    if (!isValidEmail(email)) {
+                        alert('Please enter a valid email address.');
+                        return false;
+                    }
+                    
+                    return true;
+                    
+                case 2:
+                    // Always valid - cosmic signatures are calculated automatically
+                    return true;
+                    
+                case 3:
+                    if (selectedHobbies.length < 3) {
+                        alert('Please select at least 3 interests.');
+                        return false;
+                    }
+                    return true;
+                    
+                case 4:
+                    return true;
+                    
+                default:
+                    return true;
+            }
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function calculateCosmicSignatures(birthDate) {
+            if (!birthDate) return;
+            
+            // Calculate zodiac sign
+            const zodiacSign = getZodiacSign(birthDate);
+            const zodiacData = zodiacInfo[zodiacSign];
+            
+            // Update zodiac display
+            document.getElementById('zodiac-symbol').textContent = zodiacData.symbol;
+            document.getElementById('zodiac-sign').textContent = zodiacSign;
+            document.getElementById('zodiac-dates').textContent = zodiacData.dates;
+            document.getElementById('zodiac-element').textContent = zodiacData.element + ' Sign';
+            
+            // Calculate Chinese zodiac
+            const chineseZodiac = getChineseZodiac(birthDate.getFullYear());
+            const chineseData = chineseZodiacInfo[chineseZodiac];
+            
+            // Update Chinese zodiac display
+            document.getElementById('chinese-animal').textContent = getChineseAnimalEmoji(chineseZodiac);
+            document.getElementById('chinese-zodiac').textContent = chineseZodiac;
+            document.getElementById('chinese-element').textContent = chineseData.element + ' Element';
+            document.getElementById('chinese-years').textContent = chineseData.years.slice(0, 4).join(', ') + '...';
+            
+            // Calculate life path
+            const lifePath = getLifePathNumber(birthDate);
+            const lifePathData = lifePathInfo[lifePath];
+            
+            // Update life path display
+            document.getElementById('life-path-number').textContent = lifePath;
+            document.getElementById('life-path-title').textContent = lifePathData.title;
+            document.getElementById('life-path-traits').textContent = lifePathData.traits.slice(0, 2).join(', ');
+            document.getElementById('life-path-compat').textContent = 'Best with: ' + lifePathData.compatibility.split(': ')[1];
+            
+            // Store user data
+            userData = {
+                name: document.getElementById('full-name').value,
+                email: document.getElementById('email').value,
+                birthDate: birthDate,
+                location: document.getElementById('location').value,
+                zodiacSign: zodiacSign,
+                chineseZodiac: chineseZodiac,
+                lifePath: lifePath
+            };
+        }
+        
+        function getChineseAnimalEmoji(animal) {
+            const emojis = {
+                'Rat': '🐭', 'Ox': '🐮', 'Tiger': '🐯', 'Rabbit': '🐰',
+                'Dragon': '🐲', 'Snake': '🐍', 'Horse': '🐴', 'Goat': '🐐',
+                'Monkey': '🐵', 'Rooster': '🐔', 'Dog': '🐶', 'Pig': '🐷'
+            };
+            return emojis[animal] || '🐾';
+        }
+        
+        function updateContinueButton() {
+            const button = document.getElementById('continue-to-preview');
+            if (selectedHobbies.length >= 3) {
+                button.textContent = 'Preview Profile';
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                button.textContent = `Select ${3 - selectedHobbies.length} more interests`;
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        function updateProfilePreview() {
+            const name = document.getElementById('full-name').value;
+            const location = document.getElementById('location').value;
+            const bio = document.getElementById('bio').value || `Cosmic soul seeking meaningful connections. ${userData.zodiacSign} with a passion for ${selectedHobbies[0].toLowerCase()}.`;
+            
+            // Update preview elements
+            document.getElementById('preview-name').textContent = name;
+            document.getElementById('preview-location').textContent = location;
+            document.getElementById('preview-bio').textContent = bio;
+            document.getElementById('preview-initials').textContent = getInitials(name);
+            
+            // Update cosmic signatures
+            document.getElementById('preview-zodiac').textContent = `${zodiacInfo[userData.zodiacSign].symbol} ${userData.zodiacSign}`;
+            document.getElementById('preview-chinese').textContent = `${getChineseAnimalEmoji(userData.chineseZodiac)} ${userData.chineseZodiac}`;
+            document.getElementById('preview-lifepath').textContent = `${userData.lifePath} Life Path`;
+            
+            // Update hobbies preview
+            const hobbiesContainer = document.getElementById('preview-hobbies');
+            hobbiesContainer.innerHTML = '';
+            selectedHobbies.forEach(hobby => {
+                const hobbyElement = document.createElement('span');
+                hobbyElement.className = 'hobby-tag selected';
+                hobbyElement.textContent = document.querySelector(`[data-hobby="${hobby}"]`).textContent;
+                hobbiesContainer.appendChild(hobbyElement);
+            });
+        }
+        
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+        
+        function completeRegistration() {
+            // Show loading state
+            const button = document.getElementById('complete-registration');
+            const originalText = button.textContent;
+            button.textContent = 'Creating Your Profile...';
+            button.disabled = true;
+            
+            // Prepare final user data
+            const finalUserData = {
+                ...userData,
+                hobbies: selectedHobbies,
+                bio: document.getElementById('bio').value || `Cosmic soul seeking meaningful connections. ${userData.zodiacSign} with a passion for ${selectedHobbies[0].toLowerCase()}.`,
+                image: `https://picsum.photos/seed/${Date.now()}/300/300.jpg`
+            };
+            
+            // Simulate registration process
+            setTimeout(() => {
+                // Register user
+                const newUser = registerUser(finalUserData);
+                
+                // Show success message
+                alert(`Welcome to Cosmic Connections, ${newUser.name}! Your cosmic profile has been created. Your compatibility score potential is excellent!`);
+                
+                // Redirect to search page
+                window.location.href = 'search.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

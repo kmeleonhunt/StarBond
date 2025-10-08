@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Cosmic Matches - Cosmic Connections</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cosmic: {
+                            navy: '#0B1426',
+                            gold: '#D4AF37',
+                            silver: '#C0C0C0',
+                            lavender: '#E6E6FA',
+                            rose: '#E8B4B8',
+                            midnight: '#191970',
+                            stardust: '#F8F8FF',
+                            purple: '#6A0DAD',
+                            aurora: '#40E0D0'
+                        }
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Crimson Text', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0B1426 0%, #191970 50%, #0B1426 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .cosmic-card {
+            background: rgba(248, 248, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cosmic-btn {
+            background: linear-gradient(135deg, #D4AF37, #C0C0C0);
+            color: #0B1426;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cosmic-btn:hover {
+            background: linear-gradient(135deg, #C0C0C0, #D4AF37);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+        }
+        
+        .cosmic-input {
+            background: rgba(248, 248, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #F8F8FF;
+            transition: all 0.3s ease;
+        }
+        
+        .cosmic-input:focus {
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+            outline: none;
+        }
+        
+        .filter-toggle {
+            appearance: none;
+            width: 3rem;
+            height: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-toggle:checked {
+            background: #D4AF37;
+        }
+        
+        .filter-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-toggle:checked::after {
+            transform: translateX(1.5rem);
+        }
+        
+        .member-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .compatibility-meter {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .meter-fill {
+            height: 100%;
+            transition: width 1s ease;
+        }
+        
+        .compatibility-high .meter-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        }
+        
+        .compatibility-medium .meter-fill {
+            background: linear-gradient(90deg, #FF9800, #FFC107);
+        }
+        
+        .compatibility-low .meter-fill {
+            background: linear-gradient(90deg, #F44336, #FF5722);
+        }
+        
+        .constellation-nav {
+            position: relative;
+        }
+        
+        .constellation-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #D4AF37;
+            transition: width 0.3s ease;
+        }
+        
+        .constellation-nav:hover::after {
+            width: 100%;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 20, 38, 0.9);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .zodiac-symbol {
+            font-size: 1.5rem;
+            color: #D4AF37;
+        }
+        
+        .filter-panel {
+            background: rgba(25, 25, 112, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Cosmic Background Canvas -->
+    <div class="cosmic-bg">
+        <canvas id="cosmic-canvas"></canvas>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-cosmic-navy/80 backdrop-blur-md border-b border-cosmic-gold/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                        <span class="text-cosmic-navy font-bold text-sm">★</span>
+                    </div>
+                    <span class="font-display text-xl font-bold text-cosmic-stardust">Cosmic Connections</span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Home</a>
+                    <a href="register.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Register</a>
+                    <a href="search.html" class="constellation-nav text-cosmic-gold">Find Matches</a>
+                    <a href="members.html" class="constellation-nav text-cosmic-stardust hover:text-cosmic-gold transition-colors">Browse Members</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-cosmic-stardust text-sm" id="user-status">Welcome, Cosmic Explorer</span>
+                    <button class="cosmic-btn px-4 py-2 rounded-full text-sm">
+                        My Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Search Header -->
+    <section class="pt-24 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <h1 class="font-display text-4xl md:text-5xl font-bold text-cosmic-stardust mb-4">
+                    Find Your <span class="text-cosmic-gold">Cosmic Matches</span>
+                </h1>
+                <p class="text-xl text-cosmic-lavender max-w-3xl mx-auto">
+                    Discover meaningful connections through our advanced compatibility system
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Search Interface -->
+    <section class="pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Filter Panel -->
+                <div class="lg:col-span-1">
+                    <div class="filter-panel p-6 rounded-2xl sticky top-24">
+                        <h2 class="font-display text-2xl font-bold text-cosmic-stardust mb-6">Filter Matches</h2>
+                        
+                        <!-- Compatibility Pools -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-cosmic-stardust mb-4">Compatibility Pools</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-cosmic-lavender">High Compatibility (80%+)</label>
+                                    <input type="checkbox" class="filter-toggle" id="high-compatibility" checked>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <label class="text-cosmic-lavender">Medium Compatibility (60-79%)</label>
+                                    <input type="checkbox" class="filter-toggle" id="medium-compatibility" checked>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <label class="text-cosmic-lavender">Learning Connections (40-59%)</label>
+                                    <input type="checkbox" class="filter-toggle" id="low-compatibility">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hobby Matching -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-cosmic-stardust mb-4">Hobby Matching</h3>
+                            
+                            <div class="flex items-center justify-between">
+                                <label class="text-cosmic-lavender">Include hobby compatibility</label>
+                                <input type="checkbox" class="filter-toggle" id="hobby-matching" checked>
+                            </div>
+                            
+                            <p class="text-cosmic-lavender text-sm mt-2 opacity-75">
+                                Boost compatibility scores when you share interests
+                            </p>
+                        </div>
+                        
+                        <!-- Age Range -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-cosmic-stardust mb-4">Age Range</h3>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-cosmic-lavender text-sm mb-1">Minimum Age</label>
+                                    <input type="number" class="cosmic-input w-full px-3 py-2 rounded-lg" id="min-age" value="25" min="18" max="99">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-cosmic-lavender text-sm mb-1">Maximum Age</label>
+                                    <input type="number" class="cosmic-input w-full px-3 py-2 rounded-lg" id="max-age" value="45" min="18" max="99">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-cosmic-stardust mb-4">Location</h3>
+                            
+                            <select class="cosmic-input w-full px-3 py-2 rounded-lg" id="location-filter">
+                                <option value="">All Locations</option>
+                                <option value="New York">New York, NY</option>
+                                <option value="Los Angeles">Los Angeles, CA</option>
+                                <option value="Chicago">Chicago, IL</option>
+                                <option value="Houston">Houston, TX</option>
+                                <option value="Phoenix">Phoenix, AZ</option>
+                                <option value="Philadelphia">Philadelphia, PA</option>
+                                <option value="San Antonio">San Antonio, TX</option>
+                                <option value="San Diego">San Diego, CA</option>
+                                <option value="Dallas">Dallas, TX</option>
+                                <option value="San Jose">San Jose, CA</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Search Button -->
+                        <button class="cosmic-btn w-full py-3 rounded-lg" id="search-matches">
+                            Find Cosmic Matches
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Results Area -->
+                <div class="lg:col-span-3">
+                    <!-- Search Stats -->
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <span class="text-cosmic-stardust font-semibold" id="results-count">12 matches found</span>
+                            <span class="text-cosmic-lavender ml-2">for your cosmic profile</span>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <label class="text-cosmic-lavender text-sm">Sort by:</label>
+                            <select class="cosmic-input px-3 py-2 rounded-lg" id="sort-matches">
+                                <option value="compatibility">Compatibility Score</option>
+                                <option value="newest">Newest Members</option>
+                                <option value="location">Location</option>
+                                <option value="zodiac">Zodiac Sign</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Matches Grid -->
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6" id="matches-grid">
+                        <!-- Match cards will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Load More Button -->
+                    <div class="text-center mt-8">
+                        <button class="cosmic-btn px-8 py-3 rounded-full" id="load-more">
+                            Load More Matches
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Match Details Modal -->
+    <div class="modal" id="match-modal">
+        <div class="modal-content cosmic-card p-8 rounded-2xl m-4">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="font-display text-3xl font-bold text-cosmic-stardust">Cosmic Compatibility</h2>
+                <button class="text-cosmic-lavender hover:text-cosmic-gold text-2xl" id="close-modal">&times;</button>
+            </div>
+            
+            <div id="modal-content">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-cosmic-navy/50 border-t border-cosmic-gold/20 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-br from-cosmic-gold to-cosmic-silver rounded-full flex items-center justify-center">
+                    <span class="text-cosmic-navy font-bold text-sm">★</span>
+                </div>
+                <span class="font-display text-xl font-bold text-cosmic-stardust">Cosmic Connections</span>
+            </div>
+            
+            <p class="text-cosmic-lavender mb-4">
+                © 2025 Cosmic Connections. Bringing souls together through celestial wisdom.
+            </p>
+            
+            <p class="text-cosmic-lavender text-sm">
+                Made with ✨ and cosmic love for meaningful connections.
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    <script src="animations.js"></script>
+    <script src="data.js"></script>
+    
+    <script>
+        let currentUser = null;
+        let searchResults = [];
+        let displayedResults = 0;
+        const resultsPerPage = 9;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSearch();
+        });
+        
+        function initializeSearch() {
+            // Load current user
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                if (currentUser.birthDate) {
+                    currentUser.birthDate = new Date(currentUser.birthDate);
+                }
+                document.getElementById('user-status').textContent = `Welcome, ${currentUser.name}`;
+            }
+            
+            // Generate mock users if needed
+            if (users.length === 0) {
+                generateMockUsers();
+            }
+            
+            // Setup event listeners
+            setupSearchEventListeners();
+            
+            // Initial search
+            performSearch();
+        }
+        
+        function setupSearchEventListeners() {
+            // Filter toggles
+            document.querySelectorAll('.filter-toggle').forEach(toggle => {
+                toggle.addEventListener('change', performSearch);
+            });
+            
+            // Age range inputs
+            document.getElementById('min-age').addEventListener('change', performSearch);
+            document.getElementById('max-age').addEventListener('change', performSearch);
+            
+            // Location filter
+            document.getElementById('location-filter').addEventListener('change', performSearch);
+            
+            // Sort dropdown
+            document.getElementById('sort-matches').addEventListener('change', performSearch);
+            
+            // Search button
+            document.getElementById('search-matches').addEventListener('click', performSearch);
+            
+            // Load more button
+            document.getElementById('load-more').addEventListener('click', loadMoreResults);
+            
+            // Modal controls
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('match-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+        
+        function performSearch() {
+            if (!currentUser) {
+                // Use a default user for demonstration
+                currentUser = users[0];
+            }
+            
+            // Get filter options
+            const options = {
+                includeHobbies: document.getElementById('hobby-matching').checked,
+                poolLevel: getPoolLevel(),
+                minAge: parseInt(document.getElementById('min-age').value) || 25,
+                maxAge: parseInt(document.getElementById('max-age').value) || 45,
+                location: document.getElementById('location-filter').value,
+                maxResults: 50
+            };
+            
+            // Find compatible users
+            searchResults = findCompatibleUsers(currentUser, options);
+            
+            // Apply additional filters
+            searchResults = applyAdditionalFilters(searchResults, options);
+            
+            // Sort results
+            sortResults(searchResults);
+            
+            // Display results
+            displayedResults = 0;
+            displayResults();
+            
+            // Update results count
+            document.getElementById('results-count').textContent = `${searchResults.length} matches found`;
+        }
+        
+        function getPoolLevel() {
+            const high = document.getElementById('high-compatibility').checked;
+            const medium = document.getElementById('medium-compatibility').checked;
+            const low = document.getElementById('low-compatibility').checked;
+            
+            if (high && medium && low) return 'all';
+            if (high && medium) return 'high-medium';
+            if (high) return 'high';
+            if (medium) return 'medium';
+            if (low) return 'low';
+            
+            return 'all';
+        }
+        
+        function applyAdditionalFilters(results, options) {
+            return results.filter(result => {
+                const user = result.user;
+                
+                // Age filter
+                const age = calculateAge(user.birthDate);
+                if (age < options.minAge || age > options.maxAge) {
+                    return false;
+                }
+                
+                // Location filter
+                if (options.location && user.location !== options.location) {
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+        
+        function sortResults(results) {
+            const sortBy = document.getElementById('sort-matches').value;
+            
+            switch (sortBy) {
+                case 'compatibility':
+                    results.sort((a, b) => b.compatibility.overall - a.compatibility.overall);
+                    break;
+                case 'newest':
+                    results.sort((a, b) => b.user.id - a.user.id);
+                    break;
+                case 'location':
+                    results.sort((a, b) => a.user.location.localeCompare(b.user.location));
+                    break;
+                case 'zodiac':
+                    results.sort((a, b) => a.user.zodiacSign.localeCompare(b.user.zodiacSign));
+                    break;
+            }
+        }
+        
+        function displayResults() {
+            const grid = document.getElementById('matches-grid');
+            
+            if (displayedResults === 0) {
+                grid.innerHTML = '';
+            }
+            
+            const resultsToShow = searchResults.slice(displayedResults, displayedResults + resultsPerPage);
+            
+            resultsToShow.forEach((result, index) => {
+                const card = createMatchCard(result, displayedResults + index);
+                grid.appendChild(card);
+            });
+            
+            displayedResults += resultsToShow.length;
+            
+            // Update load more button
+            const loadMoreBtn = document.getElementById('load-more');
+            if (displayedResults >= searchResults.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'block';
+            }
+            
+            // Animate new cards
+            if (typeof anime !== 'undefined') {
+                const newCards = grid.querySelectorAll('.member-card');
+                const startIndex = Math.max(0, newCards.length - resultsToShow.length);
+                
+                anime({
+                    targets: Array.from(newCards).slice(startIndex),
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    duration: 600,
+                    easing: 'easeOutQuad',
+                    delay: anime.stagger(100)
+                });
+            }
+        }
+        
+        function createMatchCard(result, index) {
+            const user = result.user;
+            const compatibility = result.compatibility;
+            const { level, color } = getCompatibilityLevel(compatibility.overall);
+            
+            const card = document.createElement('div');
+            card.className = `member-card cosmic-card p-6 rounded-2xl compatibility-${level.toLowerCase()}`;
+            card.onclick = () => showMatchDetails(result);
+            
+            const age = calculateAge(user.birthDate);
+            
+            card.innerHTML = `
+                <div class="flex items-center space-x-4 mb-4">
+                    <img src="${user.image}" alt="${user.name}" class="w-16 h-16 rounded-full object-cover">
+                    <div class="flex-1">
+                        <h3 class="font-display text-xl font-bold text-cosmic-stardust">${user.name}</h3>
+                        <p class="text-cosmic-lavender">${age} years old • ${user.location}</p>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="zodiac-symbol">${zodiacSigns[user.zodiacSign].symbol}</span>
+                            <span class="text-cosmic-gold text-sm">${user.zodiacSign}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-cosmic-stardust font-semibold">Compatibility</span>
+                        <span class="text-cosmic-gold font-bold">${compatibility.overall}%</span>
+                    </div>
+                    <div class="compatibility-meter">
+                        <div class="meter-fill" style="width: ${compatibility.overall}%;"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-cosmic-lavender text-sm line-clamp-2">${user.bio}</p>
+                </div>
+                
+                <div class="flex flex-wrap gap-1 mb-4">
+                    ${user.hobbies.slice(0, 3).map(hobby => 
+                        `<span class="bg-cosmic-gold/20 text-cosmic-gold px-2 py-1 rounded-full text-xs">${hobby}</span>`
+                    ).join('')}
+                    ${user.hobbies.length > 3 ? `<span class="text-cosmic-lavender text-xs">+${user.hobbies.length - 3} more</span>` : ''}
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="flex-1 cosmic-btn py-2 rounded-lg text-sm" onclick="event.stopPropagation(); sendConnection(${user.id})">
+                        Connect
+                    </button>
+                    <button class="px-4 py-2 border border-cosmic-gold text-cosmic-gold rounded-lg text-sm hover:bg-cosmic-gold hover:text-cosmic-navy transition-all" onclick="event.stopPropagation(); addToFavorites(${user.id})">
+                        ♡
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function loadMoreResults() {
+            displayResults();
+        }
+        
+        function showMatchDetails(result) {
+            const modal = document.getElementById('match-modal');
+            const content = document.getElementById('modal-content');
+            const user = result.user;
+            const compatibility = result.compatibility;
+            const age = calculateAge(user.birthDate);
+            
+            content.innerHTML = `
+                <div class="flex items-center space-x-6 mb-8">
+                    <img src="${user.image}" alt="${user.name}" class="w-24 h-24 rounded-full object-cover">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-cosmic-stardust">${user.name}</h3>
+                        <p class="text-cosmic-lavender text-lg">${age} years old • ${user.location}</p>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <span class="zodiac-symbol text-2xl">${zodiacSigns[user.zodiacSign].symbol}</span>
+                            <span class="text-cosmic-gold font-semibold">${user.zodiacSign}</span>
+                            <span class="text-cosmic-aurora font-semibold">${getChineseAnimalEmoji(user.chineseZodiac)} ${user.chineseZodiac}</span>
+                            <span class="text-cosmic-rose font-semibold">${user.lifePath} Life Path</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="font-display text-xl font-bold text-cosmic-stardust mb-4">Overall Compatibility: ${compatibility.overall}%</h4>
+                    <div class="compatibility-meter mb-4">
+                        <div class="meter-fill" style="width: ${compatibility.overall}%;"></div>
+                    </div>
+                    <p class="text-cosmic-lavender">${getCompatibilityInsight(compatibility.overall)}</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="cosmic-card p-4 rounded-xl">
+                        <h5 class="font-semibold text-cosmic-stardust mb-3">Zodiac Compatibility</h5>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-cosmic-lavender">${currentUser.zodiacSign} + ${user.zodiacSign}</span>
+                            <span class="text-cosmic-gold font-bold">${compatibility.zodiac}%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" style="width: ${compatibility.zodiac}%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="cosmic-card p-4 rounded-xl">
+                        <h5 class="font-semibold text-cosmic-stardust mb-3">Chinese Zodiac</h5>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-cosmic-lavender">${currentUser.chineseZodiac} + ${user.chineseZodiac}</span>
+                            <span class="text-cosmic-gold font-bold">${compatibility.chinese}%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" style="width: ${compatibility.chinese}%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="cosmic-card p-4 rounded-xl">
+                        <h5 class="font-semibold text-cosmic-stardust mb-3">Life Path</h5>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-cosmic-lavender">${currentUser.lifePath} + ${user.lifePath}</span>
+                            <span class="text-cosmic-gold font-bold">${compatibility.lifePath}%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" style="width: ${compatibility.lifePath}%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="cosmic-card p-4 rounded-xl">
+                        <h5 class="font-semibold text-cosmic-stardust mb-3">Shared Interests</h5>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-cosmic-lavender">${compatibility.sharedHobbies.length} shared</span>
+                            <span class="text-cosmic-gold font-bold">${compatibility.hobbies}%</span>
+                        </div>
+                        <div class="compatibility-meter">
+                            <div class="meter-fill" style="width: ${compatibility.hobbies}%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h4 class="font-semibold text-cosmic-stardust mb-3">About ${user.name}</h4>
+                    <p class="text-cosmic-lavender mb-4">${user.bio}</p>
+                    
+                    <h5 class="font-semibold text-cosmic-stardust mb-3">Interests</h5>
+                    <div class="flex flex-wrap gap-2">
+                        ${user.hobbies.map(hobby => 
+                            `<span class="bg-cosmic-gold/20 text-cosmic-gold px-3 py-1 rounded-full text-sm">${hobby}</span>`
+                        ).join('')}
+                    </div>
+                    
+                    ${compatibility.sharedHobbies.length > 0 ? `
+                    <div class="mt-4">
+                        <h5 class="font-semibold text-cosmic-gold mb-2">Shared Interests</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${compatibility.sharedHobbies.map(hobby => 
+                                `<span class="bg-cosmic-aurora/20 text-cosmic-aurora px-3 py-1 rounded-full text-sm">${hobby}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button class="flex-1 cosmic-btn py-3 rounded-lg" onclick="sendConnection(${user.id})">
+                        Send Connection Request
+                    </button>
+                    <button class="px-6 py-3 border border-cosmic-gold text-cosmic-gold rounded-lg hover:bg-cosmic-gold hover:text-cosmic-navy transition-all" onclick="addToFavorites(${user.id})">
+                        Add to Favorites
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('match-modal').classList.remove('active');
+        }
+        
+        function getCompatibilityInsight(score) {
+            if (score >= 80) {
+                return compatibilityTips.high[Math.floor(Math.random() * compatibilityTips.high.length)];
+            } else if (score >= 60) {
+                return compatibilityTips.medium[Math.floor(Math.random() * compatibilityTips.medium.length)];
+            } else {
+                return compatibilityTips.low[Math.floor(Math.random() * compatibilityTips.low.length)];
+            }
+        }
+        
+        function sendConnection(userId) {
+            if (!currentUser) {
+                alert('Please complete your profile first.');
+                return;
+            }
+            
+            const connection = sendConnectionRequest(currentUser.id, userId, 
+                `Hi! I noticed we have great cosmic compatibility. Would you like to connect and see where the stars take us? ✨`
+            );
+            
+            if (connection) {
+                alert('Connection request sent! 🌟');
+                closeModal();
+            }
+        }
+        
+        function addToFavorites(userId) {
+            alert('Added to favorites! 💫');
+        }
+    </script>
+</body>
+</html>
