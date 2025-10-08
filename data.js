@@ -114,98 +114,195 @@ const zodiacInfo = {
 };
 
 // Chinese zodiac information
+// Chinese zodiac information with correct elements by year
 const chineseZodiacInfo = {
     'Rat': {
-        years: [2020, 2008, 1996, 1984, 1972, 1960, 1948, 1936],
-        element: 'Water',
+        years: [
+            {year: 2020, element: 'Metal'},
+            {year: 2008, element: 'Earth'},
+            {year: 1996, element: 'Fire'},
+            {year: 1984, element: 'Wood'},
+            {year: 1972, element: 'Water'},
+            {year: 1960, element: 'Metal'},
+            {year: 1948, element: 'Earth'},
+            {year: 1936, element: 'Fire'}
+        ],
         traits: ['Intelligent', 'Adaptable', 'Quick-witted', 'Charming'],
         description: 'Clever and resourceful, Rats are natural survivors who thrive in any environment.',
         compatibility: 'Best with: Dragon, Monkey, Ox',
         color: '#4169E1'
     },
     'Ox': {
-        years: [2021, 2009, 1997, 1985, 1973, 1961, 1949, 1937],
-        element: 'Earth',
+        years: [
+            {year: 2021, element: 'Metal'},
+            {year: 2009, element: 'Earth'},
+            {year: 1997, element: 'Fire'},
+            {year: 1985, element: 'Wood'},
+            {year: 1973, element: 'Water'},
+            {year: 1961, element: 'Metal'},
+            {year: 1949, element: 'Earth'},
+            {year: 1937, element: 'Fire'}
+        ],
         traits: ['Diligent', 'Dependable', 'Strong', 'Determined'],
         description: 'Steady and reliable, Oxen build strong foundations through patience and hard work.',
         compatibility: 'Best with: Snake, Rooster, Rat',
         color: '#8B4513'
     },
     'Tiger': {
-        years: [2022, 2010, 1998, 1986, 1974, 1962, 1950, 1938],
-        element: 'Wood',
+        years: [
+            {year: 2022, element: 'Water'},
+            {year: 2010, element: 'Metal'},
+            {year: 1998, element: 'Earth'},
+            {year: 1986, element: 'Fire'},
+            {year: 1974, element: 'Wood'},
+            {year: 1962, element: 'Water'},
+            {year: 1950, element: 'Metal'},
+            {year: 1938, element: 'Earth'}
+        ],
         traits: ['Brave', 'Confident', 'Competitive', 'Charismatic'],
         description: 'Fierce and courageous, Tigers are natural leaders who inspire others with their passion.',
         compatibility: 'Best with: Horse, Dog, Pig',
         color: '#FF4500'
     },
     'Rabbit': {
-        years: [2023, 2011, 1999, 1987, 1975, 1963, 1951, 1939],
-        element: 'Wood',
+        years: [
+            {year: 2023, element: 'Water'},
+            {year: 2011, element: 'Metal'},
+            {year: 1999, element: 'Earth'},
+            {year: 1987, element: 'Fire'},
+            {year: 1975, element: 'Wood'},
+            {year: 1963, element: 'Water'},
+            {year: 1951, element: 'Metal'},
+            {year: 1939, element: 'Earth'}
+        ],
         traits: ['Gentle', 'Elegant', 'Compassionate', 'Peaceful'],
         description: 'Graceful and kind, Rabbits bring harmony and beauty to the world around them.',
         compatibility: 'Best with: Goat, Pig, Dog',
         color: '#FFB6C1'
     },
     'Dragon': {
-        years: [2024, 2012, 2000, 1988, 1976, 1964, 1952, 1940],
-        element: 'Earth',
+        years: [
+            {year: 2024, element: 'Wood'},
+            {year: 2012, element: 'Water'},
+            {year: 2000, element: 'Metal'},
+            {year: 1988, element: 'Earth'},
+            {year: 1976, element: 'Fire'},
+            {year: 1964, element: 'Wood'},
+            {year: 1952, element: 'Water'},
+            {year: 1940, element: 'Metal'}
+        ],
         traits: ['Ambitious', 'Energetic', 'Lucky', 'Powerful'],
         description: 'Majestic and powerful, Dragons are born leaders who achieve great things.',
         compatibility: 'Best with: Rat, Monkey, Rooster',
         color: '#FFD700'
     },
     'Snake': {
-        years: [2025, 2013, 2001, 1989, 1977, 1965, 1953, 1941],
-        element: 'Fire',
+        years: [
+            {year: 2025, element: 'Wood'},
+            {year: 2013, element: 'Water'},
+            {year: 2001, element: 'Metal'},
+            {year: 1989, element: 'Earth'},
+            {year: 1977, element: 'Fire'},
+            {year: 1965, element: 'Wood'},
+            {year: 1953, element: 'Water'},
+            {year: 1941, element: 'Metal'}
+        ],
         traits: ['Wise', 'Mysterious', 'Intuitive', 'Graceful'],
         description: 'Enigmatic and wise, Snakes possess deep understanding and natural elegance.',
         compatibility: 'Best with: Ox, Rooster, Monkey',
         color: '#8A2BE2'
     },
     'Horse': {
-        years: [2026, 2014, 2002, 1990, 1978, 1966, 1954, 1942],
-        element: 'Fire',
+        years: [
+            {year: 2026, element: 'Fire'},
+            {year: 2014, element: 'Wood'},
+            {year: 2002, element: 'Water'},
+            {year: 1990, element: 'Metal'},
+            {year: 1978, element: 'Earth'},
+            {year: 1966, element: 'Fire'},
+            {year: 1954, element: 'Wood'},
+            {year: 1942, element: 'Water'}
+        ],
         traits: ['Active', 'Energetic', 'Kind', 'Popular'],
         description: 'Free-spirited and energetic, Horses bring joy and excitement wherever they go.',
         compatibility: 'Best with: Tiger, Dog, Goat',
         color: '#DC143C'
     },
     'Goat': {
-        years: [2027, 2015, 2003, 1991, 1979, 1967, 1955, 1943],
-        element: 'Earth',
+        years: [
+            {year: 2027, element: 'Fire'},
+            {year: 2015, element: 'Wood'},
+            {year: 2003, element: 'Water'},
+            {year: 1991, element: 'Metal'},
+            {year: 1979, element: 'Earth'},
+            {year: 1967, element: 'Fire'},
+            {year: 1955, element: 'Wood'},
+            {year: 1943, element: 'Water'}
+        ],
         traits: ['Gentle', 'Calm', 'Creative', 'Thoughtful'],
         description: 'Peaceful and artistic, Goats create beauty and harmony in their surroundings.',
         compatibility: 'Best with: Rabbit, Pig, Horse',
         color: '#F0E68C'
     },
     'Monkey': {
-        years: [2028, 2016, 2004, 1992, 1980, 1968, 1956, 1944],
-        element: 'Metal',
+        years: [
+            {year: 2028, element: 'Earth'},
+            {year: 2016, element: 'Fire'},
+            {year: 2004, element: 'Wood'},
+            {year: 1992, element: 'Water'},
+            {year: 1980, element: 'Metal'},
+            {year: 1968, element: 'Earth'},
+            {year: 1956, element: 'Fire'},
+            {year: 1944, element: 'Wood'}
+        ],
         traits: ['Clever', 'Curious', 'Mischievous', 'Innovative'],
         description: 'Quick-witted and playful, Monkeys solve problems with creativity and humor.',
         compatibility: 'Best with: Dragon, Rat, Snake',
         color: '#DAA520'
     },
     'Rooster': {
-        years: [2029, 2017, 2005, 1993, 1981, 1969, 1957, 1945],
-        element: 'Metal',
+        years: [
+            {year: 2029, element: 'Earth'},
+            {year: 2017, element: 'Fire'},
+            {year: 2005, element: 'Wood'},
+            {year: 1993, element: 'Water'},
+            {year: 1981, element: 'Metal'},
+            {year: 1969, element: 'Earth'},
+            {year: 1957, element: 'Fire'},
+            {year: 1945, element: 'Wood'}
+        ],
         traits: ['Observant', 'Hardworking', 'Courageous', 'Punctual'],
         description: 'Proud and confident, Roosters excel at organization and leadership.',
         compatibility: 'Best with: Ox, Snake, Dragon',
         color: '#FF6347'
     },
     'Dog': {
-        years: [2030, 2018, 2006, 1994, 1982, 1970, 1958, 1946],
-        element: 'Earth',
+        years: [
+            {year: 2030, element: 'Metal'},
+            {year: 2018, element: 'Earth'},
+            {year: 2006, element: 'Fire'},
+            {year: 1994, element: 'Wood'},
+            {year: 1982, element: 'Water'},
+            {year: 1970, element: 'Metal'},
+            {year: 1958, element: 'Earth'},
+            {year: 1946, element: 'Fire'}
+        ],
         traits: ['Loyal', 'Honest', 'Responsible', 'Caring'],
         description: 'Faithful and true, Dogs are devoted friends who protect those they love.',
         compatibility: 'Best with: Tiger, Horse, Rabbit',
         color: '#696969'
     },
     'Pig': {
-        years: [2031, 2019, 2007, 1995, 1983, 1971, 1959, 1947],
-        element: 'Water',
+        years: [
+            {year: 2031, element: 'Metal'},
+            {year: 2019, element: 'Earth'},
+            {year: 2007, element: 'Fire'},
+            {year: 1995, element: 'Wood'},
+            {year: 1983, element: 'Water'},
+            {year: 1971, element: 'Metal'},
+            {year: 1959, element: 'Earth'},
+            {year: 1947, element: 'Fire'}
+        ],
         traits: ['Compassionate', 'Generous', 'Diligent', 'Optimistic'],
         description: 'Kind and generous, Pigs bring abundance and joy to everyone around them.',
         compatibility: 'Best with: Rabbit, Goat, Tiger',
